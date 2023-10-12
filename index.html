@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moving Square</title>
+    <style>
+        #square {
+            width: 100px;
+            height: 100px;
+            background-color: black;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: left 1s linear;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+  const requestURL = 'https://keev.me/f/slowpoke.php';
+
+  async function moveSquare() {
+    const squareDiv = document.createElement('div');
+    squareDiv.setAttribute('id', 'square');
+    document.body.appendChild(squareDiv);
+
+    let startTime;
+    function animate(time) {
+      if (!startTime) {
+        startTime = time;
+      }
+
+      const progress = time - startTime;
+      if (progress < 1000) {
+        squareDiv.style.left = `${progress / 10}px`;
+        requestAnimationFrame(animate);
+      }
+    }
+    requestAnimationFrame(animate);
+
+    let response;
+    try {
+      response = await fetch(requestURL);
+    } catch (error) {
+      squareDiv.style.backgroundColor = 'red';
+      return;
+    }
+
+    setTimeout(async () => {
+      if (!response.ok) {
+        squareDiv.style.backgroundColor = 'red';
+        return;
+      }
+
+      const data = await response.text();
+      if (data === '1') {
+        squareDiv.style.backgroundColor = 'green';
+      } else if (data === '0') {
+        squareDiv.style.backgroundColor = 'blue';
+      } else {
+        squareDiv.style.backgroundColor = 'red';
+      }
+    }, 2000);
+  }
+
+  moveSquare();
+
+</script>
+
+</body>
+</html>
